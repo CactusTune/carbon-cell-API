@@ -102,6 +102,20 @@ userRouter.post("/login", async (request: Request, response: Response) => {
   }
 });
 
+userRouter.post("/logout", async (request: Request, response: Response) => {
+  try {
+    response.clearCookie("jwt-token");
+
+    return response
+      .status(200)
+      .json({ message: "User successfully logged out " });
+  } catch (error) {
+    return response
+      .status(500)
+      .json({ code: 500, success: false, message: "Internal server error" });
+  }
+});
+
 userRouter.get(
   "/get-all-users",
   isAuthenticated,
