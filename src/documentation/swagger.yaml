@@ -1,0 +1,300 @@
+openapi: 3.0.0
+info:
+  title: Carbon cell NODEJS Application
+  version: "1.0"
+paths:
+  /user/register-user:
+    post:
+      summary: Registers a new user
+      description: This endpoint is used to register a new user with name, username, email, age, and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - username
+                - email
+                - age
+                - password
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                username:
+                  type: string
+                  example: johndoe123
+                email:
+                  type: string
+                  example: johndoe@example.com
+                age:
+                  type: integer
+                  example: 30
+                password:
+                  type: string
+                  format: password
+                  example: Password123!
+      responses:
+        "201":
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User successfully created
+                  data:
+                    $ref: '#/components/schemas/User'
+        "400":
+          description: User already exists or validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User with email: johndoe@example.com already exists
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 500
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Internal server error
+
+  /user/login:
+    post:
+      summary: Authenticates a user
+      description: This endpoint is used for user authentication. Upon successful login, it returns an auth token in the headers.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                email:
+                  type: string
+                  description: The user's email address for login.
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  format: password
+                  description: The user's password for login.
+                  example: Password123!
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Auth token to be used for subsequent requests.
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  message:
+                    type: string
+                    example: Login successful
+        "401":
+          description: Unauthorized - Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid email or password
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 500
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Internal server error
+
+  /entries/get-public-api:
+    get:
+      summary: Retrieves entries from a public API
+      description: Fetches a list of entries from a public API, with optional filtering by category and limiting the number of results returned.
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Category to filter the entries.
+          required: false
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The maximum number of entries to return.
+          required: false
+      responses:
+        "200":
+          description: A list of entries from the public API.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 10
+                    description: The number of entries returned.
+                  entries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Entry'
+                    description: The list of entries, optionally filtered by the given category and limited by the given limit.
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 500
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"     
+
+  /user/get-all-users:
+    get:
+      summary: Get All Users
+      description: Retrieves all users from the database
+      responses:
+        "201":
+          description: Users fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Users fetched successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 500
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"
+                    
+  /web3/get-wallet-balance:
+    post:
+      summary: Get Wallet Balance
+      description: Retrieves the balance of an Ethereum wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_address:
+                  type: string
+                  example: "0xFb5Ec3009d68C63e253f7bB57aB04159b24de400"
+                  description: Ethereum wallet address
+      responses:
+        "200":
+          description: Wallet balance retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wei_balance:
+                    type: string
+                    example: "1000000000000000000"
+                    description: Wallet balance in Wei
+                  ether_balance:
+                    type: string
+                    example: "1"
+                    description: Wallet balance in Ether
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 500
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        age:
+          type: integer
+        password:
+          type: string
+
+    Entry:
+      type: object
+      properties:
+        Category:
+          type: string
+          example: "Blockchain"
